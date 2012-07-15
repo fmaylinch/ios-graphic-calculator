@@ -8,6 +8,7 @@
 
 #import "GCalculatorViewController.h"
 #import "CalculatorBrain.h"
+#import "GraphViewController.h"
 
 @interface GCalculatorViewController ()
 
@@ -27,6 +28,23 @@
 @synthesize userIsTypingANumber = _userIsTypingANumber;
 @synthesize variables = _variables;
 
+- (void) setup {
+	NSLog(@"GCalculatorViewController setup");
+}
+
+- (void) awakeFromNib {
+	[self setup];
+}
+
+- (id) initWithNibName:(NSString*) nibNameOrNil bundle:(NSBundle*) nibBundleOrNil {
+
+	self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+	if (self) {
+		[self setup];
+	}
+
+	return self;
+}
 
 - (CalculatorBrain*) brain {
 	if (!_brain) _brain = [[CalculatorBrain alloc] init];
@@ -165,6 +183,7 @@
 - (IBAction) resetVariablesPressed {
     
 	self.variables = nil;
+    self.userIsTypingANumber = NO;
 	[self recalculateProgram];
 }
 
@@ -212,5 +231,13 @@
 		}
 	}
 }
+
+- (void) prepareForSegue:(UIStoryboardSegue*) segue sender:(id) sender {
+
+	NSLog(@"Preparing for segue: %@", segue.identifier);
+	GraphViewController* controller = segue.destinationViewController;
+	controller.brain = self.brain;
+}
+
 
 @end

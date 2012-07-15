@@ -17,6 +17,9 @@
 		7C58DF8115B091A500BBF851 /* GCalculatorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C58DF8015B091A500BBF851 /* GCalculatorViewController.m */; };
 		7C58DF8815B091DB00BBF851 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7C58DF8715B091DB00BBF851 /* MainStoryboard_iPhone.storyboard */; };
 		7C58DF8B15B0937000BBF851 /* CalculatorBrain.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C58DF8A15B0936500BBF851 /* CalculatorBrain.m */; };
+		7C938FFB15B1111E0045787A /* GraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C938FFA15B1111E0045787A /* GraphView.m */; };
+		7C938FFF15B115250045787A /* GraphViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C938FFE15B115250045787A /* GraphViewController.m */; };
+		7C938FFF15B115250045787D /* AxesDrawer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C938FFF15B115250045787C /* AxesDrawer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +39,12 @@
 		7C58DF8715B091DB00BBF851 /* MainStoryboard_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
 		7C58DF8915B0936500BBF851 /* CalculatorBrain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CalculatorBrain.h; sourceTree = "<group>"; };
 		7C58DF8A15B0936500BBF851 /* CalculatorBrain.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CalculatorBrain.m; sourceTree = "<group>"; };
+		7C938FF915B1111E0045787A /* GraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphView.h; sourceTree = "<group>"; };
+		7C938FFA15B1111E0045787A /* GraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphView.m; sourceTree = "<group>"; };
+		7C938FFD15B115250045787A /* GraphViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphViewController.h; sourceTree = "<group>"; };
+		7C938FFE15B115250045787A /* GraphViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphViewController.m; sourceTree = "<group>"; };
+		7C938FFF15B115250045787B /* AxesDrawer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AxesDrawer.h; sourceTree = "<group>"; };
+		7C938FFF15B115250045787C /* AxesDrawer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AxesDrawer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,14 +91,20 @@
 		7C58DF6D15B091A500BBF851 /* GCalculator */ = {
 			isa = PBXGroup;
 			children = (
+				7C938FFF15B115250045787C /* AxesDrawer.m */,
+				7C938FFF15B115250045787B /* AxesDrawer.h */,
 				7C58DF7615B091A500BBF851 /* GCalculatorAppDelegate.h */,
 				7C58DF7715B091A500BBF851 /* GCalculatorAppDelegate.m */,
 				7C58DF8715B091DB00BBF851 /* MainStoryboard_iPhone.storyboard */,
 				7C58DF7C15B091A500BBF851 /* MainStoryboard_iPad.storyboard */,
-				7C58DF8915B0936500BBF851 /* CalculatorBrain.h */,
-				7C58DF8A15B0936500BBF851 /* CalculatorBrain.m */,
+				7C938FFD15B115250045787A /* GraphViewController.h */,
+				7C938FFE15B115250045787A /* GraphViewController.m */,
+				7C938FF915B1111E0045787A /* GraphView.h */,
+				7C938FFA15B1111E0045787A /* GraphView.m */,
 				7C58DF7F15B091A500BBF851 /* GCalculatorViewController.h */,
 				7C58DF8015B091A500BBF851 /* GCalculatorViewController.m */,
+				7C58DF8915B0936500BBF851 /* CalculatorBrain.h */,
+				7C58DF8A15B0936500BBF851 /* CalculatorBrain.m */,
 				7C58DF6E15B091A500BBF851 /* Supporting Files */,
 			);
 			path = GCalculator;
@@ -174,6 +189,9 @@
 				7C58DF7415B091A500BBF851 /* main.m in Sources */,
 				7C58DF7815B091A500BBF851 /* GCalculatorAppDelegate.m in Sources */,
 				7C58DF8115B091A500BBF851 /* GCalculatorViewController.m in Sources */,
+				7C938FFB15B1111E0045787A /* GraphView.m in Sources */,
+				7C938FFF15B115250045787A /* GraphViewController.m in Sources */,
+				7C938FFF15B115250045787D /* AxesDrawer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,6 +305,7 @@
 				7C58DF8615B091A500BBF851 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
