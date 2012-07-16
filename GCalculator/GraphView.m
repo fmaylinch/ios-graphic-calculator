@@ -97,8 +97,8 @@
 			&& pointRelativeToCenterOfBounds.y <= self.bounds.size.height/2;
 }
 
-- (void) drawGraphIn:(CGContextRef) context {
-
+- (void) drawGraphIn : (CGContextRef) context
+{
 	UIGraphicsPushContext(context);
 
 	CGContextSetLineWidth(context, 1.0);
@@ -144,14 +144,15 @@
 	UIGraphicsPopContext();
 }
 
-- (void) drawAxes {
+- (void) drawAxes
+{
 	CGPoint axesOrigin = {
 			self.positionFromCenter.x + self.bounds.size.width/2,
 			self.positionFromCenter.y + self.bounds.size.height/2};
 	[AxesDrawer drawAxesInRect:self.bounds originAtPoint:axesOrigin scale:self.scale.x];
 }
 
-- (void)drawRect:(CGRect)rect
+- (void) drawRect : (CGRect)rect
 {
 	NSLog(@"Redrawing...");
 	[GraphView logPoint:self.scale withLabel:@"Scale"];
@@ -165,7 +166,8 @@
 	[self drawGraphIn:context];
 }
 
-- (void) pinch:(UIPinchGestureRecognizer*) gesture {
+/** Pinch changes scale */
+- (void) pinch : (UIPinchGestureRecognizer*) gesture {
 
 	if (gesture.state == UIGestureRecognizerStateEnded) {
 
@@ -177,7 +179,8 @@
 	}
 }
 
-- (void) pan:(UIPanGestureRecognizer*) gesture {
+/** Pan changes positionFromCenter */
+- (void) pan : (UIPanGestureRecognizer*) gesture {
 
 	if (gesture.state == UIGestureRecognizerStateEnded) {
 
