@@ -14,6 +14,7 @@
 
 @property (nonatomic, weak) IBOutlet GraphView* graphView;
 @property (nonatomic, strong) NSMutableDictionary* variables;
+@property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 
 @end
 
@@ -22,6 +23,8 @@
 @synthesize brain = _brain;
 @synthesize graphView = _graphView;
 @synthesize variables = _variables;
+@synthesize toolbar = _toolbar;
+@synthesize splitViewBarButtonItem = _splitViewBarButtonItem;
 
 
 // --------------------------- SETUP ---------------------------
@@ -72,6 +75,17 @@
 			tripleTapGestureRecognizer];
 }
 
+- (void) setSplitViewBarButtonItem:(UIBarButtonItem*) splitViewBarButtonItem {
+
+	if (_splitViewBarButtonItem != splitViewBarButtonItem) {
+
+		NSMutableArray* const toolbarItems = [self.toolbar.items mutableCopy];
+		if (_splitViewBarButtonItem) [toolbarItems removeObject:_splitViewBarButtonItem];
+		if (splitViewBarButtonItem) [toolbarItems insertObject:splitViewBarButtonItem atIndex:0];
+		self.toolbar.items = toolbarItems;
+		_splitViewBarButtonItem = splitViewBarButtonItem;
+	}
+}
 
 // --------------------------- VIEW SETTINGS ---------------------------
 
@@ -93,4 +107,8 @@
 }
 
 
+- (void)viewDidUnload {
+    [self setToolbar:nil];
+    [super viewDidUnload];
+}
 @end

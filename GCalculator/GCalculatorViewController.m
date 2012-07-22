@@ -9,6 +9,7 @@
 #import "GCalculatorViewController.h"
 #import "CalculatorBrain.h"
 #import "GraphViewController.h"
+#import "SplitViewBarButtonItemPresenter.h"
 
 @interface GCalculatorViewController ()
 
@@ -240,25 +241,38 @@
 			|| UIInterfaceOrientationIsPortrait(interfaceOrientation);
 }
 
+- (id <SplitViewBarButtonItemPresenter>) splitViewBarButtonItemPresenter {
+
+	return [self.splitViewController.viewControllers lastObject];
+}
+
 /** Hide the master controller when in portrait */
 - (BOOL) splitViewController :(UISplitViewController*) svc
 	shouldHideViewController :(UIViewController*) vc
 			   inOrientation :(UIInterfaceOrientation) orientation {
+
+	NSLog(@"should hide view controller");
 	return UIInterfaceOrientationIsPortrait(orientation);
 }
 
+/** Assign bar button item */
 - (void) splitViewController :(UISplitViewController*) svc
 	  willHideViewController :(UIViewController*) aViewController
 		   withBarButtonItem :(UIBarButtonItem*) barButtonItem
 		forPopoverController :(UIPopoverController*) pc {
 
+	NSLog(@"will hide view controller");
 	barButtonItem.title = self.title;
+	[self splitViewBarButtonItemPresenter].splitViewBarButtonItem = barButtonItem;
 }
 
+/** Invalidate bar button item */
 - (void) splitViewController :(UISplitViewController*) svc
 	  willShowViewController :(UIViewController*) aViewController
    invalidatingBarButtonItem :(UIBarButtonItem*) barButtonItem {
 
+	NSLog(@"will show view controller");
+	[self splitViewBarButtonItemPresenter].splitViewBarButtonItem = nil;
 }
 
 @end

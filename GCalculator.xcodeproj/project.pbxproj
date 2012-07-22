@@ -45,6 +45,7 @@
 		7C938FFE15B115250045787A /* GraphViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphViewController.m; sourceTree = "<group>"; };
 		7C938FFF15B115250045787B /* AxesDrawer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AxesDrawer.h; sourceTree = "<group>"; };
 		7C938FFF15B115250045787C /* AxesDrawer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AxesDrawer.m; sourceTree = "<group>"; };
+		7C938FFF15B115250045787E /* SplitViewBarButtonItemPresenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitViewBarButtonItemPresenter.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +92,7 @@
 		7C58DF6D15B091A500BBF851 /* GCalculator */ = {
 			isa = PBXGroup;
 			children = (
+				7C938FFF15B115250045787E /* SplitViewBarButtonItemPresenter.h */,
 				7C938FFF15B115250045787C /* AxesDrawer.m */,
 				7C938FFF15B115250045787B /* AxesDrawer.h */,
 				7C58DF7615B091A500BBF851 /* GCalculatorAppDelegate.h */,

@@ -7,10 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SplitViewBarButtonItemPresenter.h"
 
 @class CalculatorBrain;
 
-@interface GraphViewController : UIViewController
+@interface GraphViewController : UIViewController <SplitViewBarButtonItemPresenter>
 
 @property (nonatomic, weak) CalculatorBrain* brain;
 
