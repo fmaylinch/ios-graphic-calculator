@@ -23,13 +23,13 @@
 
 @synthesize display = _display;
 @synthesize expressionDisplay = _expressionDisplay;
-@synthesize variablesDisplay = _variablesDisplay;
 @synthesize brain = _brain;
 @synthesize userIsTypingANumber = _userIsTypingANumber;
 @synthesize variables = _variables;
 
 - (void) setup {
 	NSLog(@"GCalculatorViewController setup");
+	self.splitViewController.delegate = self;
 }
 
 - (void) awakeFromNib {
@@ -45,6 +45,28 @@
 
 	return self;
 }
+
+- (BOOL) splitViewController :(UISplitViewController*) svc
+	shouldHideViewController :(UIViewController*) vc
+			   inOrientation :(UIInterfaceOrientation) orientation {
+	return NO;
+}
+
+- (void) splitViewController :(UISplitViewController*) svc
+	  willHideViewController :(UIViewController*) aViewController
+		   withBarButtonItem :(UIBarButtonItem*) barButtonItem
+		forPopoverController :(UIPopoverController*) pc {
+
+	barButtonItem.title = self.title;
+}
+
+- (void) splitViewController :(UISplitViewController*) svc
+	  willShowViewController :(UIViewController*) aViewController
+   invalidatingBarButtonItem :(UIBarButtonItem*) barButtonItem {
+
+
+}
+
 
 - (CalculatorBrain*) brain {
 	if (!_brain) _brain = [[CalculatorBrain alloc] init];
@@ -67,8 +89,6 @@
 	} else {
 		self.display.textColor = [UIColor blackColor];
 	}
-    
-	[self refreshVariablesDisplay];
 }
 
 - (IBAction) digitPressed :(UIButton*) sender {
@@ -178,16 +198,6 @@
 }
 
 /**
- * Removes all the variable values
- */
-- (IBAction) resetVariablesPressed {
-    
-	self.variables = nil;
-    self.userIsTypingANumber = NO;
-	[self recalculateProgram];
-}
-
-/**
  * Recalculates the program result and refreshes the displays
  */
 - (void) recalculateProgram {
@@ -196,7 +206,6 @@
 	NSString* resultText = [NSString stringWithFormat:@"%g", result];
 	self.display.text = resultText;
     
-	[self refreshVariablesDisplay];
 	[self refreshExpressionDisplay];
 }
 
@@ -208,30 +217,16 @@
 	self.expressionDisplay.text = [self.brain descriptionOfProgram];
 }
 
-/**
- * Displays the variables used in the expression or (if the user is typing a number)
- * a help message so the user knows that the number can be assigned to a variable.
- */
-- (void) refreshVariablesDisplay {
-    
-	if (self.userIsTypingANumber) {
-		self.variablesDisplay.text = @"Press a letter to assign the number";
-	} else {
-		self.variablesDisplay.text = [NSString stringWithFormat:@"%@ (used: %@)",
-                                      [self.variables description], [self.brain variablesUsedInProgram]];
-        
-		self.variablesDisplay.text = @"";
-        
-		for (NSString* variable in [self.brain variablesUsedInProgram]) {
-            
-			NSNumber* value = [self.variables objectForKey:variable];
-            
-			self.variablesDisplay.text = [self.variablesDisplay.text
-                                          stringByAppendingString:[NSString stringWithFormat:@"%@=%@ ", variable, value]];
-		}
-	}
+/** The redraw is for iPad, because the graph is always visible */
+- (IBAction) redrawPressed {
+
+    NSLog(@"Redraw pressed!");
+
+	GraphViewController* const graphViewController = [self.splitViewController.viewControllers lastObject];
+	graphViewController.brain = self.brain;
 }
 
+/** The segue is for iPhone, because there is a transition to the graph */
 - (void) prepareForSegue:(UIStoryboardSegue*) segue sender:(id) sender {
 
 	NSLog(@"Preparing for segue: %@", segue.identifier);
@@ -239,5 +234,10 @@
 	controller.brain = self.brain;
 }
 
+- (BOOL) shouldAutorotateToInterfaceOrientation: (UIInterfaceOrientation) interfaceOrientation {
+
+    return self.splitViewController != nil  // Only rotate this view in iPad (it has the split view)
+			|| UIInterfaceOrientationIsPortrait(interfaceOrientation);
+}
 
 @end

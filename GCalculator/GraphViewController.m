@@ -23,20 +23,13 @@
 @synthesize graphView = _graphView;
 @synthesize variables = _variables;
 
-- (void) setGraphView:(GraphView*) graphView {
-	NSLog(@"Setting GraphView");
-	_graphView = graphView;
-
-	self.graphView.dataSource = self;
-
-	[self.graphView addGestureRecognizer:
-			[[UIPinchGestureRecognizer alloc] initWithTarget:self.graphView action:@selector(pinch:)]];
-	[self.graphView addGestureRecognizer:
-			[[UIPanGestureRecognizer alloc] initWithTarget:self.graphView action:@selector(pan:)]];
+- (void) setBrain: (CalculatorBrain*) brain {
+	_brain = brain;
+	[self.graphView setNeedsDisplay];
 }
 
 - (void) setup {
-	NSLog(@"GraphicViewController setup");
+	NSLog(@"GraphViewController setup");
 	self.variables = [[NSMutableDictionary alloc] init];
 }
 
@@ -53,21 +46,29 @@
     return self;
 }
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-	// Do any additional setup after loading the view.
+- (void) setGraphView:(GraphView*) graphView {
+
+	NSLog(@"Setting GraphView");
+	_graphView = graphView;
+
+	self.graphView.dataSource = self;
+
+	[self.graphView addGestureRecognizer:
+			[[UIPinchGestureRecognizer alloc] initWithTarget:self.graphView action:@selector(pinch:)]];
+	[self.graphView addGestureRecognizer:
+			[[UIPanGestureRecognizer alloc] initWithTarget:self.graphView action:@selector(pan:)]];
+
+	UITapGestureRecognizer* const tripleTapGestureRecognizer =
+			[[UITapGestureRecognizer alloc] initWithTarget:self.graphView action:@selector(tripleTap:)];
+	tripleTapGestureRecognizer.numberOfTapsRequired = 3;
+
+	[self.graphView addGestureRecognizer:
+			tripleTapGestureRecognizer];
 }
 
-- (void)viewDidUnload
+- (BOOL) shouldAutorotateToInterfaceOrientation: (UIInterfaceOrientation) interfaceOrientation
 {
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    return NO;
+    return UIInterfaceOrientationIsPortrait(interfaceOrientation);
 }
 
 - (double) valueOfFunctionFor:(double) x {

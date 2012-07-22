@@ -135,6 +135,8 @@
 
 	UIGraphicsPushContext(context);
 
+	[[UIColor grayColor] setStroke];
+
 	CGContextBeginPath(context);
 	CGContextMoveToPoint(context, bounds.origin.x, axisOrigin.y);
 	CGContextAddLineToPoint(context, bounds.origin.x+bounds.size.width, axisOrigin.y);

@@ -16,10 +16,10 @@
 
 @property (nonatomic, weak) IBOutlet id <FunctionDataSource> dataSource;
 
-/** Scale of the graph (X and Y) */
-@property (nonatomic) CGPoint scale;
+/** Scale of the graph */
+@property (nonatomic) CGFloat scale;
 
-/** Position of the graph */
+/** Position of the graph relative to center of bound. {0,0} means center of bounds.  */
 @property (nonatomic) CGPoint positionFromCenter;
 
 + (void) logPoint:(CGPoint) point withLabel:(NSString*) string;

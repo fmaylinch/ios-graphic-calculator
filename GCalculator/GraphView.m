@@ -16,8 +16,8 @@
 @synthesize positionFromCenter = _positionFromCenter;
 @synthesize scale = _scale;
 
-- (void) setScale:(CGPoint) scale {
-	if (!CGPointEqualToPoint(_scale, scale)) {
+- (void) setScale:(CGFloat) scale {
+	if (_scale != scale) {
 		_scale = scale;
 		[self setNeedsDisplay];
 	}
@@ -37,8 +37,7 @@
 	self.contentMode = UIViewContentModeRedraw;
 
 	CGPoint defaultPositionFromCenter = {0, 0};
-
-	CGPoint defaultScale = {1, 1};
+	CGFloat defaultScale = 1;
 
 	self.positionFromCenter = defaultPositionFromCenter;
 	self.scale = defaultScale;
@@ -57,44 +56,28 @@
 	return self;
 }
 
-+ (void) logPoint:(CGPoint) point withLabel:(NSString*) label {
 
-	NSLog(@"%@ : [%g,%g]", label, point.x, point.y);
+// --------------------------- DRAWING ---------------------------
+
+- (void) drawRect : (CGRect)rect
+{
+	NSLog(@"Redrawing...");
+	NSLog(@"Scale: %g", self.scale);
+	[GraphView logPoint:self.positionFromCenter withLabel:@"Position from center"];
+
+	CGContextRef context = UIGraphicsGetCurrentContext();
+
+	[self drawAxes];
+
+	[self drawGraphIn:context];
 }
 
-/**
-* Calculates the corresponding gY.
-* gX must be in the range [-boundsWidth/2, +boundsWidth/2].
-* It takes into account: positionFromCenter and scale.
-* [gX,gY] points are relative to the center of bounds.
-*/
-- (CGFloat) calculateGraphY:(CGFloat) gX {
-
-	double x = (gX - self.positionFromCenter.x) / self.scale.x;
-	double y = [self.dataSource valueOfFunctionFor:x];
-	CGFloat gY = self.positionFromCenter.y - (CGFloat) y * self.scale.y;
-
-//	NSLog(@"%g => %g ===> %g => %g", gX, x, y, gY);
-
-	return gY;
-}
-
-/** Tells if the point is inside the bounds of this view */
-- (BOOL) isInsideBounds:(CGPoint) pointRelativeToCenterOfBounds {
-
-/*
-	NSLog(@"Point [%g,%g] inside bounds [%g,%g]+[%g,%g] ?",
-			point.x, point.y,
-			self.bounds.origin.x, self.bounds.origin.y,
-			self.bounds.size.width, self.bounds.size.height);
-*/
-	// TODO: If bounds don't change we could store width and height in constants
-	// TODO: We won't use points outside width so we could skip that check and only check height
-
-	return pointRelativeToCenterOfBounds.x >= -self.bounds.size.width/2
-			&& pointRelativeToCenterOfBounds.x <= self.bounds.size.width
-			&& pointRelativeToCenterOfBounds.y >= -self.bounds.size.height/2
-			&& pointRelativeToCenterOfBounds.y <= self.bounds.size.height/2;
+- (void) drawAxes
+{
+	CGPoint axesOrigin = {
+			self.positionFromCenter.x + self.bounds.size.width/2,
+			self.positionFromCenter.y + self.bounds.size.height/2};
+	[AxesDrawer drawAxesInRect:self.bounds originAtPoint:axesOrigin scale:self.scale];
 }
 
 - (void) drawGraphIn : (CGContextRef) context
@@ -110,71 +93,132 @@
 			self.bounds.origin.x + self.bounds.size.width/2,
 			self.bounds.origin.y + self.bounds.size.height/2 };
 
-	CGPoint current = { -boundsHalfWidth, [self calculateGraphY:-boundsHalfWidth] };
+	// Starting point of the graph. Relative to center of bounds, and real (= "relative" to screen)
+	CGPoint relativeCurrent = { -boundsHalfWidth, [self calculateGraphY:-boundsHalfWidth] };
+	CGPoint realCurrent = [GraphView transformPoint:relativeCurrent relativeTo:centerOfBounds];
 
-	CGContextBeginPath(context);
-	CGContextMoveToPoint(context, current.x, current.y);
-	BOOL strokeNeeded = NO;
+	BOOL penDown = NO; // YES means we should add lines to path
 
-	const CGFloat precision = 1; // Increase number to draw less lines (reduce precision)
+	const CGFloat pointsPerPixel = 1 / self.contentScaleFactor;
+	NSLog(@"pointsPerPixel: %g", pointsPerPixel);
 
-	for (CGFloat gX = -boundsHalfWidth + precision; gX <= boundsHalfWidth; gX += precision) {
+	for (CGFloat gX = -boundsHalfWidth + pointsPerPixel; gX <= boundsHalfWidth; gX += pointsPerPixel) {
 
-		CGPoint next = { gX, [self calculateGraphY:gX] };
+		CGPoint relativeNext = { gX, [self calculateGraphY:gX] };
+		CGPoint realNext = [GraphView transformPoint:relativeNext relativeTo:centerOfBounds];
 
-		if ([self isInsideBounds:current] || [self isInsideBounds:next]) {
-//			NSLog(@"Add line to [%g,%g]", next.x, next.y);
-			CGContextAddLineToPoint(context, centerOfBounds.x + next.x, centerOfBounds.y + next.y);
-			strokeNeeded = YES;
-		} else {
-//			NSLog(@"Move to [%g,%g]", next.x, next.y);
-			// Optimization: don't draw lines if current and next are outside the bounds
-			if (strokeNeeded) {
-				strokeNeeded = NO;
-				CGContextStrokePath(context);
+		if ([GraphView isPointReal:realNext]) {
+
+			if ([self isInsideBounds:realCurrent] || [self isInsideBounds:realNext]) {
+
+				// If pen was not down, try to start path (if current point is real)
+				if (!penDown && [GraphView isPointReal:realCurrent]) {
+					[GraphView logPoint:realCurrent withLabel:@"Starting path from"];
+					CGContextBeginPath(context);
+					CGContextMoveToPoint(context, realCurrent.x, realCurrent.y);
+					penDown = YES;
+				}
+
+				// If pen is down, add line
+				if (penDown) {
+
+					[GraphView logPoint:realNext withLabel:@"Adding line to"];
+					CGContextAddLineToPoint(context, realNext.x, realNext.y);
+
+					// If we are outside the bounds, stroke path and raise the pen
+					if (![self isInsideBounds:realNext]) {
+						[GraphView logPoint:realNext withLabel:@"Stroking up to next point (outside of bounds)"];
+						CGContextStrokePath(context);
+						penDown = NO;
+					}
+				}
 			}
-			CGContextMoveToPoint(context, centerOfBounds.x + next.x, centerOfBounds.y + next.y);
+
+		} else {
+
+			// next point is not real, so finish the stroke if the pen was down
+			if (penDown) {
+				[GraphView logPoint:realCurrent withLabel:@"Stroking up to current point"];
+				[GraphView logPoint:realNext withLabel:@"-> Next point is not real"];
+				CGContextStrokePath(context);
+				penDown = NO;
+			}
 		}
 
-		current = next;
+		realCurrent = realNext;
 	}
 
-	if (strokeNeeded) CGContextStrokePath(context);
+	if (penDown) {
+		[GraphView logPoint:realCurrent withLabel:@"Stroking to last point"];
+		CGContextStrokePath(context);
+	}
 
 	UIGraphicsPopContext();
 }
 
-- (void) drawAxes
-{
-	CGPoint axesOrigin = {
-			self.positionFromCenter.x + self.bounds.size.width/2,
-			self.positionFromCenter.y + self.bounds.size.height/2};
-	[AxesDrawer drawAxesInRect:self.bounds originAtPoint:axesOrigin scale:self.scale.x];
+
+// ------------------- AUXILIARY FUNCTIONS FOR DRAWING -------------------
+
+/**
+* Calculates the corresponding graphic y (gY).
+* The graphic x (gX) must be in the range [-boundsWidth/2, +boundsWidth/2] (0 means center of bounds).
+* It takes into account: positionFromCenter and scale.
+* [gX,gY] points are relative to the center of bounds (so [0,0] is the center of bounds).
+*/
+- (CGFloat) calculateGraphY:(CGFloat) gX {
+
+	double x = (gX - self.positionFromCenter.x) / self.scale;
+	double y = [self.dataSource valueOfFunctionFor:x];
+	CGFloat gY = self.positionFromCenter.y - (CGFloat) y * self.scale;
+
+//	NSLog(@"%g => %g ===> %g => %g", gX, x, y, gY);
+
+	return gY;
 }
 
-- (void) drawRect : (CGRect)rect
+/**
+* Transforms a point that is relative to 'center' to a real point (relative to screen)
+*/
++ (CGPoint) transformPoint:(CGPoint) relativePoint relativeTo:(CGPoint) center
 {
-	NSLog(@"Redrawing...");
-	[GraphView logPoint:self.scale withLabel:@"Scale"];
-	[GraphView logPoint:self.positionFromCenter withLabel:@"Position from center"];
-
-	CGContextRef context = UIGraphicsGetCurrentContext();
-
-	[self drawAxes];
-	//	[self drawAxesIn:context];
-
-	[self drawGraphIn:context];
+	CGPoint realPoint = { relativePoint.x + center.x, relativePoint.y + center.y };
+	return realPoint;
 }
+
+/**
+* Tells if the point is inside the bounds of this view.
+* It is useful to avoid adding lines outside the bounds.
+*/
+- (BOOL) isInsideBounds:(CGPoint) point
+{
+	return CGRectContainsPoint(self.bounds, point);
+}
+
+/**
+* Returns YES if point coordinates are not inf or nan.
+* It is useful because moving or adding lines to inf/nan points crashes the program.
+*/
++ (BOOL) isPointReal:(CGPoint) point {
+
+	return !isinf(point.x) && !isinf(point.y) && !isnan(point.x) && !isnan(point.y);
+}
+
++ (void) logPoint:(CGPoint) point withLabel:(NSString*) label {
+
+	NSLog(@"%@ : [%g,%g]", label, point.x, point.y);
+}
+
+
+// --------------------------- GESTURES ---------------------------
 
 /** Pinch changes scale */
 - (void) pinch : (UIPinchGestureRecognizer*) gesture {
 
 	if (gesture.state == UIGestureRecognizerStateEnded) {
 
-		// TODO: Is it possible to change x and y scales independently?
-		CGPoint newScale = { self.scale.x * gesture.scale, self.scale.y * gesture.scale };
-		self.scale = newScale;
+		NSLog(@"Pinch scale: %g", gesture.scale);
 
+		self.scale = self.scale * gesture.scale;
 		gesture.scale = 1;
 	}
 }
@@ -186,44 +230,28 @@
 
 		const CGPoint translation = [gesture translationInView:self];
 
-		[GraphView logPoint:self.positionFromCenter withLabel:@"Old position"];
+		[GraphView logPoint:translation withLabel:@"Pan translation"];
 
 		CGPoint newPosition = {
 				self.positionFromCenter.x + translation.x, self.positionFromCenter.y + translation.y };
 		self.positionFromCenter = newPosition;
 
-		[GraphView logPoint:self.positionFromCenter withLabel:@"New position"];
-
 		[gesture setTranslation:CGPointZero inView:self];
 	}
 }
 
-/*
-- (void) drawAxesIn:(CGContextRef) context {
+// Triple tap moves the axes center to the location of the tap
+- (void) tripleTap : (UITapGestureRecognizer*) gesture {
 
-	UIGraphicsPushContext(context);
+	if (gesture.state == UIGestureRecognizerStateEnded) {
 
-	CGContextSetLineWidth(context, 1.0);
-	[[UIColor grayColor] setStroke];
+		const CGPoint location = [gesture locationInView:self];
+		[GraphView logPoint:location withLabel:@"Tap location"];
 
-	const CGFloat xAxisPosition =
-			self.bounds.origin.y + self.bounds.size.height/2 + [self positionFromCenter].y;
-
-	const CGFloat yAxisPosition =
-			self.bounds.origin.x + self.bounds.size.width/2 + [self positionFromCenter].x;
-
-	CGContextBeginPath(context);
-	CGContextMoveToPoint(context, self.bounds.origin.x, xAxisPosition);
-	CGContextAddLineToPoint(context, self.bounds.origin.x + self.bounds.size.width, xAxisPosition);
-	CGContextStrokePath(context);
-
-	CGContextBeginPath(context);
-	CGContextMoveToPoint(context, yAxisPosition, self.bounds.origin.y);
-	CGContextAddLineToPoint(context, yAxisPosition, self.bounds.origin.y + self.bounds.size.height);
-	CGContextStrokePath(context);
-
-	UIGraphicsPopContext();
+		const CGPoint newPosition =
+				{ location.x - self.bounds.size.width/2, location.y - self.bounds.size.height/2 };
+		self.positionFromCenter = newPosition;
+	}
 }
-*/
 
 @end
