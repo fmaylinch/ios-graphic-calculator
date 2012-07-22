@@ -17,15 +17,28 @@
 @synthesize scale = _scale;
 
 - (void) setScale:(CGFloat) scale {
+
 	if (_scale != scale) {
+
 		_scale = scale;
+
+		NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+		[defaults setObject:[NSNumber numberWithFloat:scale] forKey:@"scale"];
+
 		[self setNeedsDisplay];
 	}
 }
 
 - (void) setPositionFromCenter:(CGPoint) positionFromCenter {
+
 	if (!CGPointEqualToPoint(_positionFromCenter, positionFromCenter)) {
+
 		_positionFromCenter = positionFromCenter;
+
+		NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+		[defaults setObject:[NSNumber numberWithFloat:positionFromCenter.x] forKey:@"x"];
+		[defaults setObject:[NSNumber numberWithFloat:positionFromCenter.y] forKey:@"y"];
+
 		[self setNeedsDisplay];
 	}
 }
@@ -36,11 +49,20 @@
 
 	self.contentMode = UIViewContentModeRedraw;
 
-	CGPoint defaultPositionFromCenter = {0, 0};
-	CGFloat defaultScale = 1;
+	CGPoint positionFromCenter;
 
-	self.positionFromCenter = defaultPositionFromCenter;
-	self.scale = defaultScale;
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
+	NSNumber* x = [defaults objectForKey:@"x"];
+	positionFromCenter.x = x ? [x floatValue] : 0;
+
+	NSNumber* y = [defaults objectForKey:@"y"];
+	positionFromCenter.y = y ? [y floatValue] : 0;
+
+	self.positionFromCenter = positionFromCenter;
+
+	NSNumber* scale = [defaults objectForKey:@"scale"];
+	self.scale = scale ? [scale floatValue] : 1;
 }
 
 - (void) awakeFromNib {
