@@ -80,6 +80,18 @@
 	[AxesDrawer drawAxesInRect:self.bounds originAtPoint:axesOrigin scale:self.scale];
 }
 
+/**
+ * Draws the graph.
+ *
+ * It starts to draw from the left side of the bounds and ends at the right side.
+ * The relative points are relative to the center of bounds (so point {0,0} is at the center of bounds).
+ * The real points are relative to screen (what is needed to use the graphic functions).
+ * Current and next points are used to add lines or move.
+ * Usually, it will add a line from current to next point, but there are special cases:
+ * - If both points are outside the bounds (line is unnecessary).
+ * - If any of those points is not real (i.e. not-a-number or infinite) (program might crash).
+ * In those cases, the line won't be drawn and the previous path (if any) will be stroked.
+ */
 - (void) drawGraphIn : (CGContextRef) context
 {
 	UIGraphicsPushContext(context);
@@ -97,8 +109,6 @@
 	CGPoint relativeCurrent = { -boundsHalfWidth, [self calculateGraphY:-boundsHalfWidth] };
 	CGPoint realCurrent = [GraphView transformPoint:relativeCurrent relativeTo:centerOfBounds];
 
-	BOOL penDown = NO; // YES means we should add lines to path
-
 	const CGFloat pointsPerPixel = 1 / self.contentScaleFactor;
 	NSLog(@"pointsPerPixel: %g", pointsPerPixel);
 
@@ -111,44 +121,41 @@
 
 			if ([self isInsideBounds:realCurrent] || [self isInsideBounds:realNext]) {
 
-				// If pen was not down, try to start path (if current point is real)
-				if (!penDown && [GraphView isPointReal:realCurrent]) {
+				// If path was not started, try to start it (if current point is real)
+				if (CGContextIsPathEmpty(context) && [GraphView isPointReal:realCurrent]) {
 					[GraphView logPoint:realCurrent withLabel:@"Starting path from"];
 					CGContextBeginPath(context);
 					CGContextMoveToPoint(context, realCurrent.x, realCurrent.y);
-					penDown = YES;
 				}
 
-				// If pen is down, add line
-				if (penDown) {
+				// If path is started, add line
+				if (!CGContextIsPathEmpty(context)) {
 
 					[GraphView logPoint:realNext withLabel:@"Adding line to"];
 					CGContextAddLineToPoint(context, realNext.x, realNext.y);
 
-					// If we are outside the bounds, stroke path and raise the pen
+					// If we are outside the bounds, stroke path
 					if (![self isInsideBounds:realNext]) {
 						[GraphView logPoint:realNext withLabel:@"Stroking up to next point (outside of bounds)"];
 						CGContextStrokePath(context);
-						penDown = NO;
 					}
 				}
 			}
 
 		} else {
 
-			// next point is not real, so finish the stroke if the pen was down
-			if (penDown) {
+			// next point is not real, so stroke if the path was started
+			if (!CGContextIsPathEmpty(context)) {
 				[GraphView logPoint:realCurrent withLabel:@"Stroking up to current point"];
 				[GraphView logPoint:realNext withLabel:@"-> Next point is not real"];
 				CGContextStrokePath(context);
-				penDown = NO;
 			}
 		}
 
 		realCurrent = realNext;
 	}
 
-	if (penDown) {
+	if (!CGContextIsPathEmpty(context)) {
 		[GraphView logPoint:realCurrent withLabel:@"Stroking to last point"];
 		CGContextStrokePath(context);
 	}
