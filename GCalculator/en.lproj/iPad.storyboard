@@ -64,7 +64,7 @@
         <scene sceneID="PQf-jj-9DI">
             <objects>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="g10-fK-eYE" sceneMemberID="firstResponder"/>
-                <viewController id="Nn0-xB-gTg" customClass="GCalculatorViewController" sceneMemberID="viewController">
+                <viewController title="Calculator" id="Nn0-xB-gTg" customClass="GCalculatorViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="IH2-td-Dzj">
                         <rect key="frame" x="0.0" y="64" width="320" height="788"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>

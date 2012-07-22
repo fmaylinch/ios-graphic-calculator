@@ -27,6 +27,9 @@
 @synthesize userIsTypingANumber = _userIsTypingANumber;
 @synthesize variables = _variables;
 
+
+// --------------------------- SETUP ---------------------------
+
 - (void) setup {
 	NSLog(@"GCalculatorViewController setup");
 	self.splitViewController.delegate = self;
@@ -46,27 +49,8 @@
 	return self;
 }
 
-- (BOOL) splitViewController :(UISplitViewController*) svc
-	shouldHideViewController :(UIViewController*) vc
-			   inOrientation :(UIInterfaceOrientation) orientation {
-	return NO;
-}
 
-- (void) splitViewController :(UISplitViewController*) svc
-	  willHideViewController :(UIViewController*) aViewController
-		   withBarButtonItem :(UIBarButtonItem*) barButtonItem
-		forPopoverController :(UIPopoverController*) pc {
-
-	barButtonItem.title = self.title;
-}
-
-- (void) splitViewController :(UISplitViewController*) svc
-	  willShowViewController :(UIViewController*) aViewController
-   invalidatingBarButtonItem :(UIBarButtonItem*) barButtonItem {
-
-
-}
-
+// --------------------------- G/SETTERS ---------------------------
 
 - (CalculatorBrain*) brain {
 	if (!_brain) _brain = [[CalculatorBrain alloc] init];
@@ -90,6 +74,9 @@
 		self.display.textColor = [UIColor blackColor];
 	}
 }
+
+
+// --------------------------- BUTTONS ---------------------------
 
 - (IBAction) digitPressed :(UIButton*) sender {
     
@@ -182,6 +169,10 @@
 	}
 }
 
+/**
+* If the user is typing a number, that value will be stored into the variable.
+* If not, the variable will be added to the expression (program).
+*/
 - (IBAction) variablePressed :(UIButton*) sender {
     
 	NSString* variable = [sender currentTitle];
@@ -196,6 +187,29 @@
 		[self recalculateProgram];
 	}
 }
+
+/** The redraw is for iPad, because the graph is always visible */
+- (IBAction) redrawPressed {
+
+	NSLog(@"Redraw pressed!");
+
+	GraphViewController* const graphViewController = [self.splitViewController.viewControllers lastObject];
+	graphViewController.brain = self.brain;
+}
+
+/**
+* The segue is for iPhone, because there is a transition to the graph.
+* This is triggered by the "Draw" button.
+*/
+- (void) prepareForSegue:(UIStoryboardSegue*) segue sender:(id) sender {
+
+	NSLog(@"Preparing for segue: %@", segue.identifier);
+	GraphViewController* controller = segue.destinationViewController;
+	controller.brain = self.brain;
+}
+
+
+// --------------------------- DISPLAY ---------------------------
 
 /**
  * Recalculates the program result and refreshes the displays
@@ -217,27 +231,34 @@
 	self.expressionDisplay.text = [self.brain descriptionOfProgram];
 }
 
-/** The redraw is for iPad, because the graph is always visible */
-- (IBAction) redrawPressed {
 
-    NSLog(@"Redraw pressed!");
-
-	GraphViewController* const graphViewController = [self.splitViewController.viewControllers lastObject];
-	graphViewController.brain = self.brain;
-}
-
-/** The segue is for iPhone, because there is a transition to the graph */
-- (void) prepareForSegue:(UIStoryboardSegue*) segue sender:(id) sender {
-
-	NSLog(@"Preparing for segue: %@", segue.identifier);
-	GraphViewController* controller = segue.destinationViewController;
-	controller.brain = self.brain;
-}
+// --------------------------- (SPLIT) VIEW SETTINGS ---------------------------
 
 - (BOOL) shouldAutorotateToInterfaceOrientation: (UIInterfaceOrientation) interfaceOrientation {
 
     return self.splitViewController != nil  // Only rotate this view in iPad (it has the split view)
 			|| UIInterfaceOrientationIsPortrait(interfaceOrientation);
+}
+
+/** Hide the master controller when in portrait */
+- (BOOL) splitViewController :(UISplitViewController*) svc
+	shouldHideViewController :(UIViewController*) vc
+			   inOrientation :(UIInterfaceOrientation) orientation {
+	return UIInterfaceOrientationIsPortrait(orientation);
+}
+
+- (void) splitViewController :(UISplitViewController*) svc
+	  willHideViewController :(UIViewController*) aViewController
+		   withBarButtonItem :(UIBarButtonItem*) barButtonItem
+		forPopoverController :(UIPopoverController*) pc {
+
+	barButtonItem.title = self.title;
+}
+
+- (void) splitViewController :(UISplitViewController*) svc
+	  willShowViewController :(UIViewController*) aViewController
+   invalidatingBarButtonItem :(UIBarButtonItem*) barButtonItem {
+
 }
 
 @end

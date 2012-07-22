@@ -23,10 +23,8 @@
 @synthesize graphView = _graphView;
 @synthesize variables = _variables;
 
-- (void) setBrain: (CalculatorBrain*) brain {
-	_brain = brain;
-	[self.graphView setNeedsDisplay];
-}
+
+// --------------------------- SETUP ---------------------------
 
 - (void) setup {
 	NSLog(@"GraphViewController setup");
@@ -44,6 +42,14 @@
 		[self setup];
 	}
     return self;
+}
+
+
+// --------------------------- G/SETTERS ---------------------------
+
+- (void) setBrain: (CalculatorBrain*) brain {
+	_brain = brain;
+	[self.graphView setNeedsDisplay];
 }
 
 - (void) setGraphView:(GraphView*) graphView {
@@ -66,10 +72,16 @@
 			tripleTapGestureRecognizer];
 }
 
+
+// --------------------------- VIEW SETTINGS ---------------------------
+
 - (BOOL) shouldAutorotateToInterfaceOrientation: (UIInterfaceOrientation) interfaceOrientation
 {
     return YES;
 }
+
+
+// ---------------------- FunctionDataSource protocol ----------------------
 
 - (double) valueOfFunctionFor:(double) x {
 

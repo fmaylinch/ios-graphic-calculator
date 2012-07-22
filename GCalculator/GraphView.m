@@ -131,7 +131,7 @@
 				// If path is started, add line
 				if (!CGContextIsPathEmpty(context)) {
 
-					[GraphView logPoint:realNext withLabel:@"Adding line to"];
+//					[GraphView logPoint:realNext withLabel:@"Adding line to"];
 					CGContextAddLineToPoint(context, realNext.x, realNext.y);
 
 					// If we are outside the bounds, stroke path
