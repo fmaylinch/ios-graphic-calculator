@@ -10,6 +10,7 @@
 #import "CalculatorBrain.h"
 #import "GraphViewController.h"
 #import "SplitViewBarButtonItemPresenter.h"
+#import "GraphUtil.h"
 
 @interface GCalculatorViewController ()
 
@@ -31,17 +32,32 @@
 
 // --------------------------- SETUP ---------------------------
 
+- (void) viewDidLoad {
+	NSLog(@"GCalculatorViewController viewDidLoad");
+	[super viewDidLoad];
+	[GraphUtil logPoint:self.view.bounds.origin withLabel:@"Bounds origin"];
+}
+
+- (void) viewWillAppear:(BOOL) animated {
+	[super viewWillAppear:animated];
+	NSLog(@"GCalculatorViewController viewWillAppear");
+	[GraphUtil logPoint:self.view.bounds.origin withLabel:@"Bounds origin"];
+}
+
+
 - (void) setup {
 	NSLog(@"GCalculatorViewController setup");
 	self.splitViewController.delegate = self;
 }
 
 - (void) awakeFromNib {
+	NSLog(@"GCalculatorViewController awakeFromNib");
 	[self setup];
 }
 
 - (id) initWithNibName:(NSString*) nibNameOrNil bundle:(NSBundle*) nibBundleOrNil {
 
+	NSLog(@"GCalculatorViewController initWithNibName");
 	self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
 	if (self) {
 		[self setup];

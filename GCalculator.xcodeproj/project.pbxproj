@@ -20,6 +20,7 @@
 		7C938FFB15B1111E0045787A /* GraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C938FFA15B1111E0045787A /* GraphView.m */; };
 		7C938FFF15B115250045787A /* GraphViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C938FFE15B115250045787A /* GraphViewController.m */; };
 		7C938FFF15B115250045787D /* AxesDrawer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C938FFF15B115250045787C /* AxesDrawer.m */; };
+		7C938FFF15B1152500457880 /* GraphUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C938FFF15B115250045787F /* GraphUtil.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +47,8 @@
 		7C938FFF15B115250045787B /* AxesDrawer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AxesDrawer.h; sourceTree = "<group>"; };
 		7C938FFF15B115250045787C /* AxesDrawer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AxesDrawer.m; sourceTree = "<group>"; };
 		7C938FFF15B115250045787E /* SplitViewBarButtonItemPresenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitViewBarButtonItemPresenter.h; sourceTree = "<group>"; };
+		7C938FFF15B115250045787F /* GraphUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphUtil.m; sourceTree = "<group>"; };
+		7C938FFF15B1152500457881 /* GraphUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphUtil.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +95,8 @@
 		7C58DF6D15B091A500BBF851 /* GCalculator */ = {
 			isa = PBXGroup;
 			children = (
+				7C938FFF15B1152500457881 /* GraphUtil.h */,
+				7C938FFF15B115250045787F /* GraphUtil.m */,
 				7C938FFF15B115250045787E /* SplitViewBarButtonItemPresenter.h */,
 				7C938FFF15B115250045787C /* AxesDrawer.m */,
 				7C938FFF15B115250045787B /* AxesDrawer.h */,
@@ -194,6 +199,7 @@
 				7C938FFB15B1111E0045787A /* GraphView.m in Sources */,
 				7C938FFF15B115250045787A /* GraphViewController.m in Sources */,
 				7C938FFF15B115250045787D /* AxesDrawer.m in Sources */,
+				7C938FFF15B1152500457880 /* GraphUtil.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

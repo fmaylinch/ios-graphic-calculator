@@ -6,9 +6,11 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
+#import <CoreGraphics/CoreGraphics.h>
 #import "GraphViewController.h"
 #import "CalculatorBrain.h"
 #import "GraphView.h"
+#import "GraphUtil.h"
 
 @interface GraphViewController () <FunctionDataSource>
 
@@ -29,18 +31,34 @@
 
 // --------------------------- SETUP ---------------------------
 
+- (void) viewWillAppear: (BOOL) animated {
+	[super viewWillAppear:animated];
+	NSLog(@"GraphViewController viewWillAppear");
+	[GraphUtil logPoint:self.graphView.bounds.origin withLabel:@"Bounds origin"];
+	[self.graphView boundsInitialized];
+}
+
+- (void) viewDidLoad {
+	[super viewDidLoad];
+	NSLog(@"GraphViewController viewDidLoad");
+	[GraphUtil logPoint:self.graphView.bounds.origin withLabel:@"Bounds origin"];
+}
+
+
 - (void) setup {
 	NSLog(@"GraphViewController setup");
 	self.variables = [[NSMutableDictionary alloc] init];
 }
 
 - (void) awakeFromNib {
+	NSLog(@"GraphViewController awakeFromNib");
 	[self setup];
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+	NSLog(@"GraphViewController initWithNibName");
+	self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
 		[self setup];
 	}

@@ -9,12 +9,61 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import "GraphView.h"
 #import "AxesDrawer.h"
+#import "GraphUtil.h"
 
 @implementation GraphView
 
 @synthesize dataSource = _dataSource;
 @synthesize positionFromCenter = _positionFromCenter;
 @synthesize scale = _scale;
+
+
+// --------------------------- SETUP ---------------------------
+
+- (void) boundsInitialized {
+
+	// TODO: Here I could init things that depend on bounds, because this is called from viewWillAppear.
+}
+
+- (void) setup {
+
+	NSLog(@"GraphView setup");
+
+	self.contentMode = UIViewContentModeRedraw;
+
+	CGPoint positionFromCenter;
+
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
+	NSNumber* x = [defaults objectForKey:@"x"];
+	positionFromCenter.x = x ? [x floatValue] : 0;
+
+	NSNumber* y = [defaults objectForKey:@"y"];
+	positionFromCenter.y = y ? [y floatValue] : 0;
+
+	self.positionFromCenter = positionFromCenter;
+
+	NSNumber* scale = [defaults objectForKey:@"scale"];
+	self.scale = scale ? [scale floatValue] : 1;
+}
+
+- (void) awakeFromNib {
+	NSLog(@"GraphView awakeFromNib");
+	[self setup];
+}
+
+- (id)initWithFrame:(CGRect)frame {
+
+	NSLog(@"GraphView initWithFrame");
+	self = [super initWithFrame:frame];
+	if (self) {
+		[self setup];
+	}
+	return self;
+}
+
+
+// --------------------------- G/SETTERS ---------------------------
 
 - (void) setScale:(CGFloat) scale {
 
@@ -43,49 +92,14 @@
 	}
 }
 
-- (void) setup {
-
-	NSLog(@"GraphView setup");
-
-	self.contentMode = UIViewContentModeRedraw;
-
-	CGPoint positionFromCenter;
-
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-
-	NSNumber* x = [defaults objectForKey:@"x"];
-	positionFromCenter.x = x ? [x floatValue] : 0;
-
-	NSNumber* y = [defaults objectForKey:@"y"];
-	positionFromCenter.y = y ? [y floatValue] : 0;
-
-	self.positionFromCenter = positionFromCenter;
-
-	NSNumber* scale = [defaults objectForKey:@"scale"];
-	self.scale = scale ? [scale floatValue] : 1;
-}
-
-- (void) awakeFromNib {
-	[self setup];
-}
-
-- (id)initWithFrame:(CGRect)frame {
-
-	self = [super initWithFrame:frame];
-	if (self) {
-		[self setup];
-	}
-	return self;
-}
-
 
 // --------------------------- DRAWING ---------------------------
 
 - (void) drawRect : (CGRect)rect
 {
 	NSLog(@"Redrawing...");
+	[GraphUtil logPoint:self.positionFromCenter withLabel:@"Position from center"];
 	NSLog(@"Scale: %g", self.scale);
-	[GraphView logPoint:self.positionFromCenter withLabel:@"Position from center"];
 
 	CGContextRef context = UIGraphicsGetCurrentContext();
 
@@ -145,7 +159,7 @@
 
 				// If path was not started, try to start it (if current point is real)
 				if (CGContextIsPathEmpty(context) && [GraphView isPointReal:realCurrent]) {
-					[GraphView logPoint:realCurrent withLabel:@"Starting path from"];
+					[GraphUtil logPoint:realCurrent withLabel:@"Starting path from"];
 					CGContextBeginPath(context);
 					CGContextMoveToPoint(context, realCurrent.x, realCurrent.y);
 				}
@@ -153,12 +167,12 @@
 				// If path is started, add line
 				if (!CGContextIsPathEmpty(context)) {
 
-//					[GraphView logPoint:realNext withLabel:@"Adding line to"];
+//					[GraphUtil logPoint:realNext withLabel:@"Adding line to"];
 					CGContextAddLineToPoint(context, realNext.x, realNext.y);
 
 					// If we are outside the bounds, stroke path
 					if (![self isInsideBounds:realNext]) {
-						[GraphView logPoint:realNext withLabel:@"Stroking up to next point (outside of bounds)"];
+						[GraphUtil logPoint:realNext withLabel:@"Stroking up to next point (outside of bounds)"];
 						CGContextStrokePath(context);
 					}
 				}
@@ -168,8 +182,8 @@
 
 			// next point is not real, so stroke if the path was started
 			if (!CGContextIsPathEmpty(context)) {
-				[GraphView logPoint:realCurrent withLabel:@"Stroking up to current point"];
-				[GraphView logPoint:realNext withLabel:@"-> Next point is not real"];
+				[GraphUtil logPoint:realCurrent withLabel:@"Stroking up to current point"];
+				[GraphUtil logPoint:realNext withLabel:@"-> Next point is not real"];
 				CGContextStrokePath(context);
 			}
 		}
@@ -178,7 +192,7 @@
 	}
 
 	if (!CGContextIsPathEmpty(context)) {
-		[GraphView logPoint:realCurrent withLabel:@"Stroking to last point"];
+		[GraphUtil logPoint:realCurrent withLabel:@"Stroking to last point"];
 		CGContextStrokePath(context);
 	}
 
@@ -232,12 +246,6 @@
 	return !isinf(point.x) && !isinf(point.y) && !isnan(point.x) && !isnan(point.y);
 }
 
-+ (void) logPoint:(CGPoint) point withLabel:(NSString*) label {
-
-	NSLog(@"%@ : [%g,%g]", label, point.x, point.y);
-}
-
-
 // --------------------------- GESTURES ---------------------------
 
 /** Pinch changes scale */
@@ -259,7 +267,7 @@
 
 		const CGPoint translation = [gesture translationInView:self];
 
-		[GraphView logPoint:translation withLabel:@"Pan translation"];
+		[GraphUtil logPoint:translation withLabel:@"Pan translation"];
 
 		CGPoint newPosition = {
 				self.positionFromCenter.x + translation.x, self.positionFromCenter.y + translation.y };
@@ -275,7 +283,7 @@
 	if (gesture.state == UIGestureRecognizerStateEnded) {
 
 		const CGPoint location = [gesture locationInView:self];
-		[GraphView logPoint:location withLabel:@"Tap location"];
+		[GraphUtil logPoint:location withLabel:@"Tap location"];
 
 		const CGPoint newPosition =
 				{ location.x - self.bounds.size.width/2, location.y - self.bounds.size.height/2 };

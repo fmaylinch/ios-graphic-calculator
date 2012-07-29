@@ -22,5 +22,5 @@
 /** Position of the graph relative to center of bound. {0,0} means center of bounds.  */
 @property (nonatomic) CGPoint positionFromCenter;
 
-+ (void) logPoint:(CGPoint) point withLabel:(NSString*) string;
+- (void) boundsInitialized;
 @end
